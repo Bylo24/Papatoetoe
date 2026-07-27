@@ -9,11 +9,11 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 export default defineConfig({
   // Provide an explicit plugins array so tools (wrangler) can safely modify the config.
   plugins: [],
+  // Force Nitro to emit Vercel's Build Output API files during production builds.
+  nitro: { preset: "vercel" },
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
     server: { entry: "server" },
-    // Ensure the nitro deploy plugin runs on Vercel — enables proper /vercel/output generation
-    nitro: true,
   },
 });
