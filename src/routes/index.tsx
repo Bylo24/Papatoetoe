@@ -3,9 +3,9 @@ import heroPipes from "@/assets/hero-pipes.jpg";
 import { Phone, ShieldCheck, CheckCircle2, ArrowRight, MapPin } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 
-const PHONE_DISPLAY = "+64 9 870 0734";
-const PHONE_HREF = "tel:+6498700734";
-const BRAND_NAME = "NORTH SHORE PLUMBING & GAS";
+const PHONE_DISPLAY = "+6498733583";
+const PHONE_HREF = "tel:+6498733583";
+const BRAND_NAME = "Papatoetoe Plumbing & Gas";
 const FORM_ACTION = "https://formsubmit.co/samuelhowell247@gmail.com";
 
 export const Route = createFileRoute("/")({
@@ -15,13 +15,13 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Call North Shore Plumbing & Gas for leaks, blocked drains, hot water, gas fitting, and 24/7 emergency plumbing.",
+          "Call Papatoetoe Plumbing & Gas for leaks, blocked drains, hot water, gas fitting, and 24/7 emergency plumbing.",
       },
       { property: "og:title", content: `${BRAND_NAME} — 24/7 Plumbing & Gas` },
       {
         property: "og:description",
         content:
-          "Simple booking, upfront pricing, and reliable plumbing and gas fitting across the North Shore.",
+          "Simple booking, upfront pricing, and reliable plumbing and gas fitting across Papatoetoe and South Auckland.",
       },
     ],
     links: [{ rel: "icon", href: "/favicon.svg", type: "image/svg+xml" }],
@@ -39,58 +39,52 @@ const services = [
 ];
 
 const serviceAreas = [
-  "Albany",
-  "Bayview",
-  "Beach Haven",
-  "Belmont",
-  "Birkdale",
-  "Birkenhead",
-  "Browns Bay",
-  "Campbells Bay",
-  "Castor Bay",
-  "Devonport",
-  "Forrest Hill",
-  "Glenfield",
-  "Greenhithe",
-  "Hauraki",
-  "Hillcrest",
-  "Long Bay",
-  "Mairangi Bay",
-  "Milford",
-  "Northcote",
-  "Northcross",
-  "Pinehill",
-  "Rothesay Bay",
-  "Rosedale",
-  "Sunnynook",
-  "Takapuna",
-  "Torbay",
-  "Totara Vale",
-  "Unsworth Heights",
-  "Wairau Valley",
-  "Windsor Park",
+  "Papatoetoe",
+  "Old Papatoetoe",
+  "Manukau",
+  "Manurewa",
+  "Otahuhu",
+  "Mangere",
+  "Mangere East",
+  "Otara",
+  "Favona",
+  "Wiri",
+  "Clendon Park",
+  "Takanini",
+  "Papakura",
+  "Flat Bush",
+  "East Tamaki",
+  "Clover Park",
+  "Goodwood Heights",
+  "Totara Heights",
+  "Randwick Park",
+  "Weymouth",
+  "Hillpark",
+  "The Gardens",
+  "Puhinui",
+  "Auckland Airport",
 ];
 
 const testimonials = [
   {
     quote: "Quick, professional, and friendly — fixed our burst pipe in no time.",
     name: "M. Thompson",
-    suburb: "Takapuna",
+    suburb: "Papatoetoe",
   },
   {
     quote: "Upfront pricing and great communication. Highly recommended!",
     name: "A. Patel",
-    suburb: "Albany",
+    suburb: "Manukau",
   },
   {
     quote: "Reliable, polite, and fast — sorted our hot water issue.",
     name: "C. Williams",
-    suburb: "Glenfield",
+    suburb: "Mangere East",
   },
   {
     quote: "Friendly and efficient — arrived on time and cleaned up.",
     name: "S. Ng",
-    suburb: "Browns Bay",
+    suburb: "Manurewa",
   },
 ];
 
@@ -153,7 +147,7 @@ function Index() {
     <div className="min-h-screen bg-background pb-20 text-foreground sm:pb-0">
       <div className="bg-accent text-accent-foreground">
         <div className="mx-auto flex max-w-6xl flex-col justify-between gap-1.5 px-4 py-2 text-sm font-semibold sm:flex-row sm:items-center sm:px-6">
-          <p>24/7 emergency plumbing on the North Shore</p>
+          <p>24/7 emergency plumbing in Papatoetoe and South Auckland</p>
           <a href={PHONE_HREF} className="inline-flex items-center gap-2 hover:underline">
             <Phone className="size-4" />
             {PHONE_DISPLAY}
@@ -206,7 +200,7 @@ function Index() {
                 Qualified, insured, local
               </div>
               <h1 className="mb-5 text-balance font-display text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl">
-                Need a plumber on the North Shore?
+                Need a plumber in Papatoetoe?
               </h1>
               <p className="mb-7 max-w-xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
                 Call now for urgent help, or send a quick request and we will get back to you.
@@ -380,7 +374,7 @@ function Index() {
               <div className="hidden sm:block">
                 <img
                   src={heroPipes}
-                  alt="Service on the North Shore"
+                  alt="Plumbing and gas service in Papatoetoe"
                   className="h-56 w-full rounded-md object-cover object-top shadow-[var(--shadow-elevated)] md:h-[430px] lg:h-[420px]"
                 />
               </div>

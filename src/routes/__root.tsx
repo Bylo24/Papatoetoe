@@ -77,18 +77,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "NORTH SHORE PLUMBING & GAS — 24/7 Plumbing & Gas" },
+      { title: "Papatoetoe Plumbing & Gas — 24/7 Plumbing & Gas" },
       {
         name: "description",
         content:
-          "Trusted local plumbers and gas fitters serving the North Shore with upfront pricing and 24/7 emergency support.",
+          "Trusted local plumbers and gas fitters serving Papatoetoe and South Auckland with upfront pricing and 24/7 emergency support.",
       },
-      { name: "author", content: "NORTH SHORE PLUMBING & GAS" },
-      { property: "og:title", content: "NORTH SHORE PLUMBING & GAS — 24/7 Plumbing & Gas" },
+      { name: "author", content: "Papatoetoe Plumbing & Gas" },
+      { property: "og:title", content: "Papatoetoe Plumbing & Gas — 24/7 Plumbing & Gas" },
       {
         property: "og:description",
         content:
-          "Professional plumbing and gas fitting on the North Shore with upfront pricing and same-day service.",
+          "Professional plumbing and gas fitting in Papatoetoe and South Auckland with upfront pricing and same-day service.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
