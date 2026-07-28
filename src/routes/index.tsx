@@ -3,8 +3,8 @@ import heroPipes from "@/assets/hero-pipes.jpg";
 import { Phone, ShieldCheck, CheckCircle2, ArrowRight, MapPin } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 
-const PHONE_DISPLAY = "+6498733583";
-const PHONE_HREF = "tel:+6498733583";
+const PHONE_DISPLAY = "64 9 8844104";
+const PHONE_HREF = "tel:+6498844104";
 const BRAND_NAME = "Papatoetoe Plumbing & Gas";
 const FORM_ACTION = "https://formsubmit.co/samuelhowell247@gmail.com";
 
