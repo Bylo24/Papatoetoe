@@ -22,10 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Reviews } from "@/components/reviews";
-import showerAsset from "@/assets/image.png.asset.json";
-import kitchenAsset from "@/assets/image-2.png.asset.json";
-import boilerAsset from "@/assets/image-3.png.asset.json";
-import wasteAsset from "@/assets/image-4.png.asset.json";
+// Gallery images removed
 
 const PHONE = "64 9 8844104";
 const TEL = "tel:+6498844104";
@@ -131,24 +128,7 @@ const serviceOptions = [
   "Other (describe if not listed)",
 ];
 
-const gallery = [
-  {
-    src: showerAsset.url,
-    alt: "Plumber servicing a shower mixer in a marble tiled bathroom",
-  },
-  {
-    src: kitchenAsset.url,
-    alt: "New kitchen sink and pull-down mixer tap installation",
-  },
-  {
-    src: boilerAsset.url,
-    alt: "Gas boiler and hot water cylinder with copper pipework",
-  },
-  {
-    src: wasteAsset.url,
-    alt: "Waste disposal unit and under-sink plumbing installation",
-  },
-];
+const gallery: { src: string; alt: string }[] = [];
 
 function Index() {
   const [service, setService] = useState(serviceOptions[0]);
@@ -393,17 +373,21 @@ function Index() {
           <p className="mt-2 text-muted-foreground">
             Real jobs completed across Papatoetoe.
           </p>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {gallery.map((img) => (
-              <img
-                key={img.src}
-                src={img.src}
-                alt={img.alt}
-                loading="lazy"
-                className="h-64 w-full rounded-xl object-cover shadow-card"
-              />
-            ))}
-          </div>
+          {gallery.length ? (
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {gallery.map((img) => (
+                <img
+                  key={img.src}
+                  src={img.src}
+                  alt={img.alt}
+                  loading="lazy"
+                  className="h-64 w-full rounded-xl object-cover shadow-card"
+                />
+              ))}
+            </div>
+          ) : (
+            <p className="mt-8 text-muted-foreground">Photos removed.</p>
+          )}
         </div>
       </section>
 
