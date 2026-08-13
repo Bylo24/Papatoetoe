@@ -19,7 +19,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Reviews } from "@/components/reviews";
 import imgUnnamed11 from "@/assets/unnamed-11.jpeg";
 import imgUnnamed6 from "@/assets/unnamed-6.jpeg";
 
@@ -353,8 +352,6 @@ function Index() {
           </div>
         </div>
       </section>
-
-      <Reviews />
 
       {/* Common jobs */}
       <section className="py-16 sm:py-20">
