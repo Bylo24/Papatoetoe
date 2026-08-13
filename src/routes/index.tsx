@@ -144,26 +144,24 @@ function Index() {
     setSending(true);
     try {
       const to = "samuelhowell247@gmail.com";
+      const postData = new FormData();
+      postData.append("name", String(fd.get("name") ?? ""));
+      postData.append("phone", String(fd.get("phone") ?? ""));
+      postData.append("suburb", String(fd.get("suburb") ?? ""));
+      postData.append("service", String(fd.get("service") ?? ""));
+      postData.append("details", String(fd.get("details") ?? ""));
+      postData.append(
+        "_subject",
+        `New service request — ${String(fd.get("service") ?? "")}`,
+      );
+      postData.append("_template", "table");
+      postData.append("_captcha", "false");
+
       const res = await fetch(
         `https://formsubmit.co/ajax/${encodeURIComponent(to)}`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({
-            name: String(fd.get("name") ?? ""),
-            phone: String(fd.get("phone") ?? ""),
-            suburb: String(fd.get("suburb") ?? ""),
-            service: String(fd.get("service") ?? ""),
-            details: String(fd.get("details") ?? ""),
-            _subject: `New service request — ${String(
-              fd.get("service") ?? ""
-            )}`,
-            _template: "table",
-            _captcha: false,
-          }),
+          body: postData,
         },
       );
 
