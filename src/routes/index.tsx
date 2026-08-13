@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
+import { sendContactRequest } from "@/lib/contact.functions";
 import {
   Phone,
   Clock,
@@ -136,6 +138,7 @@ const serviceOptions = [
 function Index() {
   const [service, setService] = useState(serviceOptions[0]);
   const [sending, setSending] = useState(false);
+  const submit = useServerFn(sendContactRequest);
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -143,36 +146,15 @@ function Index() {
     const fd = new FormData(form);
     setSending(true);
     try {
-      const to = "samuelhowell247@gmail.com";
-      const res = await fetch(
-        `https://formsubmit.co/ajax/${encodeURIComponent(to)}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({
-            name: String(fd.get("name") ?? ""),
-            phone: String(fd.get("phone") ?? ""),
-            suburb: String(fd.get("suburb") ?? ""),
-            service: String(fd.get("service") ?? ""),
-            details: String(fd.get("details") ?? ""),
-            _subject: `New service request — ${String(
-              fd.get("service") ?? ""
-            )}`,
-            _template: "table",
-          }),
+      await submit({
+        data: {
+          name: String(fd.get("name") ?? ""),
+          phone: String(fd.get("phone") ?? ""),
+          suburb: String(fd.get("suburb") ?? ""),
+          service: String(fd.get("service") ?? ""),
+          details: String(fd.get("details") ?? ""),
         },
-      );
-
-      if (!res.ok) {
-        throw new Error(`FormSubmit responded with ${res.status}`);
-      }
-
-      const json = (await res.json()) as { success?: boolean };
-      if (json.success === false) throw new Error("FormSubmit failure");
-
+      });
       toast.success("Request sent — we'll call you back shortly.", {
         description: `For anything urgent, call ${PHONE}.`,
       });
@@ -267,7 +249,12 @@ function Index() {
                 </div>
               ))}
             </dl>
-            
+            <p className="mt-6 text-sm text-primary-foreground/70">
+              ★★★★★ 5.0 from 19 Google reviews ·{" "}
+              <a href="#reviews" className="underline underline-offset-4">
+                read them
+              </a>
+            </p>
           </div>
 
           {/* Quick request form */}
