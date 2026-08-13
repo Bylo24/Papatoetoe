@@ -364,32 +364,7 @@ function Index() {
         </div>
       </section>
 
-      {/* Recent work */}
-      <section className="border-y border-border bg-secondary py-16 sm:py-20">
-        <div className="mx-auto max-w-6xl px-5">
-          <h2 className="text-3xl font-bold uppercase sm:text-4xl">
-            Recent work
-          </h2>
-          <p className="mt-2 text-muted-foreground">
-            Real jobs completed across Papatoetoe.
-          </p>
-          {gallery.length ? (
-            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {gallery.map((img) => (
-                <img
-                  key={img.src}
-                  src={img.src}
-                  alt={img.alt}
-                  loading="lazy"
-                  className="h-64 w-full rounded-xl object-cover shadow-card"
-                />
-              ))}
-            </div>
-          ) : (
-            <p className="mt-8 text-muted-foreground">Photos removed.</p>
-          )}
-        </div>
-      </section>
+      {/* Recent work removed */}
 
       {/* Service areas */}
       <section className="py-16 sm:py-20">
