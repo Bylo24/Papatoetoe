@@ -22,7 +22,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Reviews } from "@/components/reviews";
-// Gallery images removed
+import imgUnnamed11 from "@/assets/unnamed-11.jpeg";
+import imgUnnamed6 from "@/assets/unnamed-6.jpeg";
+
+const gallery = [
+  { src: imgUnnamed11, alt: "Recent work — job photo 11" },
+  { src: imgUnnamed6, alt: "Recent work — job photo 6" },
+];
 
 const PHONE = "64 9 8844104";
 const TEL = "tel:+6498844104";
@@ -365,6 +371,27 @@ function Index() {
       </section>
 
       {/* Recent work removed */}
+
+      {/* Recent work */}
+      <section className="border-y border-border bg-secondary py-16 sm:py-20">
+        <div className="mx-auto max-w-6xl px-5">
+          <h2 className="text-3xl font-bold uppercase sm:text-4xl">
+            Recent work
+          </h2>
+          <p className="mt-2 text-muted-foreground">Real jobs completed across Papatoetoe.</p>
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {gallery.map((img) => (
+              <img
+                key={img.src}
+                src={img.src}
+                alt={img.alt}
+                loading="lazy"
+                className="h-64 w-full rounded-xl object-cover shadow-card"
+              />
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Service areas */}
       <section className="py-16 sm:py-20">
