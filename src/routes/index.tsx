@@ -266,7 +266,12 @@ function Index() {
                 </div>
               ))}
             </dl>
-            
+            <p className="mt-6 text-sm text-primary-foreground/70">
+              ★★★★★ 5.0 from 19 Google reviews ·{" "}
+              <a href="#reviews" className="underline underline-offset-4">
+                read them
+              </a>
+            </p>
           </div>
 
           {/* Quick request form */}
