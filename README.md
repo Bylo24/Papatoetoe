@@ -285,6 +285,8 @@ Northcross
 Pinehill
 
 Rothesay Bay
+<div class="sk-ww-google-reviews" data-embed-id="25705141"></div>
+<script src="https://widgets.sociablekit.com/google-reviews/widget.js" defer></script>
 
 Rosedale
 
