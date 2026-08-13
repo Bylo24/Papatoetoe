@@ -1,4 +1,5 @@
 import { Star } from "lucide-react";
+import { useEffect } from "react";
 
 type Review = {
   name: string;
@@ -81,11 +82,17 @@ function Stars() {
 }
 
 export function Reviews() {
+  useEffect(() => {
+    const scriptId = "sociablekit-google-reviews";
+    if (document.getElementById(scriptId)) return;
+    const script = document.createElement("script");
+    script.id = scriptId;
+    script.src = "https://widgets.sociablekit.com/google-reviews/widget.js";
+    script.defer = true;
+    document.body.appendChild(script);
+  }, []);
   return (
-    <section
-      id="reviews"
-      className="border-y border-border bg-card py-16 sm:py-20"
-    >
+    <section id="reviews" className="border-y border-border bg-card py-16 sm:py-20">
       <div className="mx-auto max-w-6xl px-5">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
@@ -105,39 +112,9 @@ export function Reviews() {
           </div>
         </div>
 
-        <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {reviews.map((r) => (
-            <article
-              key={r.name}
-              className="flex flex-col rounded-xl border border-border bg-background p-5 shadow-card"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <span className="flex size-9 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
-                    {r.name.charAt(0).toUpperCase()}
-                  </span>
-                  <div>
-                    <p className="font-semibold leading-tight">{r.name}</p>
-                    <p className="text-xs text-muted-foreground">{r.when}</p>
-                  </div>
-                </div>
-                <Stars />
-              </div>
-              <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-                {r.text}
-              </p>
-              {r.meta ? (
-                <p className="mt-3 text-xs font-medium uppercase tracking-wide text-primary">
-                  {r.meta}
-                </p>
-              ) : null}
-              {r.reply ? (
-                <p className="mt-4 border-l-2 border-accent pl-3 text-xs italic text-muted-foreground">
-                  Owner: {r.reply}
-                </p>
-              ) : null}
-            </article>
-          ))}
+        {/* SociableKit embed */}
+        <div className="mt-10">
+          <div className="sk-ww-google-reviews" data-embed-id="25705141"></div>
         </div>
       </div>
     </section>
