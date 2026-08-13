@@ -134,7 +134,6 @@ const serviceOptions = [
   "Other (describe if not listed)",
 ];
 
-const gallery: { src: string; alt: string }[] = [];
 
 function Index() {
   const [service, setService] = useState(serviceOptions[0]);
