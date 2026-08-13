@@ -310,29 +310,7 @@ PAPATOETOE PLUMBING & GAS
 
 64 9 8844104
 
-review part of it code:
-
-useEffect(() => {
-
-const scriptId = "sociablekit-google-reviews";
-
-if (document.getElementById(scriptId)) {
-
-    return;
-
-}
-
-const script = document.createElement("script");
-
-script.id = scriptId;
-
-script.src = "https://widgets.sociablekit.com/google-reviews/widget.js";
-
-script.defer = true;
-
-document.body.appendChild(script);
-
-}, []);
+<!-- SociableKit dynamic script removed; using embed div + script above -->
 
 This project was built with [Lovable](https://lovable.dev).
 
