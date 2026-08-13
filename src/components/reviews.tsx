@@ -103,13 +103,6 @@ export function Reviews() {
               What our customers say
             </h2>
           </div>
-          <div className="flex items-center gap-3 rounded-lg bg-secondary px-4 py-3">
-            <span className="text-3xl font-bold text-primary">5.0</span>
-            <div>
-              <Stars />
-              <p className="text-xs text-muted-foreground">19 Google reviews</p>
-            </div>
-          </div>
         </div>
 
         {/* SociableKit embed */}
