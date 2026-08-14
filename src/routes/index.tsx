@@ -289,9 +289,6 @@ function Index() {
                   <div className="grid gap-2">
                     <Label htmlFor="phone">Phone</Label>
                     <Input
-
-            <Reviews />
-
                       id="phone"
                       name="phone"
                       type="tel"
