@@ -82,15 +82,6 @@ function Stars() {
 }
 
 export function Reviews() {
-  useEffect(() => {
-    const scriptId = "sociablekit-google-reviews";
-    if (document.getElementById(scriptId)) return;
-    const script = document.createElement("script");
-    script.id = scriptId;
-    script.src = "https://widgets.sociablekit.com/google-reviews/widget.js";
-    script.defer = true;
-    document.body.appendChild(script);
-  }, []);
   return (
     <section id="reviews" className="border-y border-border bg-card py-16 sm:py-20">
       <div className="mx-auto max-w-6xl px-5">
@@ -105,10 +96,14 @@ export function Reviews() {
           </div>
         </div>
 
-        {/* SociableKit embed */}
-        <div className="mt-10">
-          <div className="sk-ww-google-reviews" data-embed-id="25705141"></div>
-        </div>
+        {/* SociableKit embed (static snippet) */}
+        <div
+          className="mt-10"
+          dangerouslySetInnerHTML={{
+            __html:
+              '<div class="sk-ww-google-reviews" data-embed-id="25705141"></div><script src="https://widgets.sociablekit.com/google-reviews/widget.js" defer></script>',
+          }}
+        />
       </div>
     </section>
   );

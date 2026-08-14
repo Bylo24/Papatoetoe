@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Reviews } from "@/components/reviews";
 import imgUnnamed11 from "@/assets/unnamed-11.jpeg";
 import imgUnnamed6 from "@/assets/unnamed-6.jpeg";
 
@@ -288,6 +289,9 @@ function Index() {
                   <div className="grid gap-2">
                     <Label htmlFor="phone">Phone</Label>
                     <Input
+
+            <Reviews />
+
                       id="phone"
                       name="phone"
                       type="tel"

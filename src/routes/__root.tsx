@@ -123,6 +123,7 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="en">
       <head>
         <HeadContent />
+        <script src="https://widgets.sociablekit.com/google-reviews/widget.js" defer></script>
       </head>
       <body>
         {children}
