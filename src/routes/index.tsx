@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
   Phone,
@@ -20,6 +20,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Reviews } from "@/components/reviews";
+import { getBanditAssignment } from "@/lib/bandit.functions";
+import { sendContactRequest } from "@/lib/contact.functions";
 import imgUnnamed11 from "@/assets/unnamed-11.jpeg";
 import imgUnnamed6 from "@/assets/unnamed-6.jpeg";
 
@@ -136,6 +138,22 @@ const serviceOptions = [
 function Index() {
   const [service, setService] = useState(serviceOptions[0]);
   const [sending, setSending] = useState(false);
+  const [banditVariant, setBanditVariant] = useState<"control" | "urgent">(
+    "control",
+  );
+  const [visitorId, setVisitorId] = useState("");
+
+  useEffect(() => {
+    const storageKey = "papatoetoe-bandit-visitor";
+    const existingId = window.localStorage.getItem(storageKey);
+    const nextId = existingId ?? crypto.randomUUID();
+    if (!existingId) window.localStorage.setItem(storageKey, nextId);
+    setVisitorId(nextId);
+
+    void getBanditAssignment({ data: { visitorId: nextId } })
+      .then(({ variant }) => setBanditVariant(variant))
+      .catch(() => undefined);
+  }, []);
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -143,34 +161,18 @@ function Index() {
     const fd = new FormData(form);
     setSending(true);
     try {
-      const to = "samuelhowell247@gmail.com";
-      const postData = new FormData();
-      postData.append("name", String(fd.get("name") ?? ""));
-      postData.append("phone", String(fd.get("phone") ?? ""));
-      postData.append("suburb", String(fd.get("suburb") ?? ""));
-      postData.append("service", String(fd.get("service") ?? ""));
-      postData.append("details", String(fd.get("details") ?? ""));
-      postData.append(
-        "_subject",
-        `New service request — ${String(fd.get("service") ?? "")}`,
-      );
-      postData.append("_template", "table");
-      postData.append("_captcha", "false");
-
-      const res = await fetch(
-        `https://formsubmit.co/ajax/${encodeURIComponent(to)}`,
-        {
-          method: "POST",
-          body: postData,
+      if (!visitorId) throw new Error("Visitor assignment is not ready");
+      await sendContactRequest({
+        data: {
+          name: String(fd.get("name") ?? ""),
+          phone: String(fd.get("phone") ?? ""),
+          suburb: String(fd.get("suburb") ?? ""),
+          service: String(fd.get("service") ?? ""),
+          details: String(fd.get("details") ?? ""),
+          visitorId,
+          variant: banditVariant,
         },
-      );
-
-      if (!res.ok) {
-        throw new Error(`FormSubmit responded with ${res.status}`);
-      }
-
-      const json = (await res.json()) as { success?: boolean };
-      if (json.success === false) throw new Error("FormSubmit failure");
+      });
 
       toast.success("Request sent — we'll call you back shortly.", {
         description: `For anything urgent, call ${PHONE}.`,
@@ -218,7 +220,9 @@ function Index() {
               size="lg"
               className="hidden sm:inline-flex"
             >
-              <a href="#request">Request service</a>
+                  <a href="#request">
+                    {banditVariant === "urgent" ? "Get urgent help" : "Request service"}
+                  </a>
             </Button>
           </div>
         </div>
@@ -246,7 +250,9 @@ function Index() {
                 </a>
               </Button>
               <Button asChild variant="onDark" size="xl">
-                <a href="#request">Request online</a>
+                <a href="#request">
+                  {banditVariant === "urgent" ? "Get urgent help" : "Request online"}
+                </a>
               </Button>
             </div>
             <dl className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-3">

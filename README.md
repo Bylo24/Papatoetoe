@@ -1,3 +1,15 @@
+# Bandit analytics
+
+The site includes a request CTA experiment at `/admin`. Set these server-only variables in the deployment environment:
+
+```bash
+BANDIT_ADMIN_PASSWORD=use-a-long-random-password
+UPSTASH_REDIS_REST_URL=https://...
+UPSTASH_REDIS_REST_TOKEN=...
+```
+
+Without Redis, local development uses an in-memory fallback and metrics reset when the server restarts. Without `BANDIT_ADMIN_PASSWORD`, the dashboard cannot be opened.
+
 # Papatoetoe Plumbing Hub
 
 MAKE A HIGHLY CONVERTING LANDING PLUMBING WEBSITE ONE PAGER

@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { recordBanditConversion } from "./bandit.functions";
 
 const contactSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100),
@@ -7,10 +8,12 @@ const contactSchema = z.object({
   suburb: z.string().trim().max(100).optional().default(""),
   service: z.string().trim().min(1).max(100),
   details: z.string().trim().max(2000).optional().default(""),
+  visitorId: z.string().min(16).max(100),
+  variant: z.enum(["control", "urgent"]),
 });
 
 export const sendContactRequest = createServerFn({ method: "POST" })
-  .inputValidator((input) => contactSchema.parse(input))
+  .validator((input) => contactSchema.parse(input))
   .handler(async ({ data }) => {
     // Recipient kept server-side so it's never exposed to the client.
     const to = "samuelhowell247@gmail.com";
@@ -39,5 +42,10 @@ export const sendContactRequest = createServerFn({ method: "POST" })
     }
 
     const json = (await res.json()) as { success: boolean };
+    if (json.success !== false) {
+      await recordBanditConversion({
+        data: { visitorId: data.visitorId, experimentId: "request-cta-copy" },
+      });
+    }
     return { success: json.success !== false };
   });

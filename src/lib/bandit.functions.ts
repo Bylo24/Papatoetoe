@@ -1,0 +1,145 @@
+import { Redis } from "@upstash/redis";
+import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
+
+const experimentId = "request-cta-copy";
+const variants = ["control", "urgent"] as const;
+type Variant = (typeof variants)[number];
+
+type VariantStats = {
+  impressions: number;
+  conversions: number;
+};
+
+type ExperimentStats = Record<Variant, VariantStats>;
+
+const memoryStore = new Map<string, unknown>();
+
+function getRedis() {
+  if (
+    process.env["UPSTASH_REDIS_REST_URL"] &&
+    process.env["UPSTASH_REDIS_REST_TOKEN"]
+  ) {
+    return Redis.fromEnv();
+  }
+  return null;
+}
+
+async function getValue<T>(key: string): Promise<T | null> {
+  const redis = getRedis();
+  if (redis) return redis.get<T>(key);
+  return (memoryStore.get(key) as T | undefined) ?? null;
+}
+
+async function setValue(key: string, value: unknown) {
+  const redis = getRedis();
+  if (redis) {
+    await redis.set(key, value);
+    return;
+  }
+  memoryStore.set(key, value);
+}
+
+function emptyStats(): ExperimentStats {
+  return {
+    control: { impressions: 0, conversions: 0 },
+    urgent: { impressions: 0, conversions: 0 },
+  };
+}
+
+function chooseVariant(stats: ExperimentStats): Variant {
+  const totalImpressions = variants.reduce(
+    (total, variant) => total + stats[variant].impressions,
+    0,
+  );
+  const unexplored = variants.find((variant) => stats[variant].impressions === 0);
+  if (unexplored) return unexplored;
+
+  const epsilon = Math.max(0.1, 1 / Math.sqrt(Math.max(totalImpressions, 1)));
+  if (Math.random() < epsilon) {
+    return variants[Math.floor(Math.random() * variants.length)] ?? "control";
+  }
+
+  return variants.reduce((best, variant) => {
+    const bestRate = stats[best].conversions / stats[best].impressions;
+    const variantRate = stats[variant].conversions / stats[variant].impressions;
+    return variantRate > bestRate ? variant : best;
+  }, variants[0]);
+}
+
+const visitorInput = z.object({
+  visitorId: z.string().min(16).max(100),
+});
+
+export const getBanditAssignment = createServerFn({ method: "POST" })
+  .validator((input) => visitorInput.parse(input))
+  .handler(async ({ data }) => {
+    const assignmentKey = `bandit:${experimentId}:visitor:${data.visitorId}`;
+    const existing = await getValue<Variant>(assignmentKey);
+    if (existing && variants.includes(existing)) {
+      return { experimentId, variant: existing };
+    }
+
+    const statsKey = `bandit:${experimentId}:stats`;
+    const stats = (await getValue<ExperimentStats>(statsKey)) ?? emptyStats();
+    const variant = chooseVariant(stats);
+    stats[variant].impressions += 1;
+    await setValue(statsKey, stats);
+    await setValue(assignmentKey, variant);
+    return { experimentId, variant };
+  });
+
+export const recordBanditConversion = createServerFn({ method: "POST" })
+  .validator((input) =>
+    visitorInput.extend({ experimentId: z.literal(experimentId) }).parse(input),
+  )
+  .handler(async ({ data }) => {
+    const assignmentKey = `bandit:${experimentId}:visitor:${data.visitorId}`;
+    const variant = await getValue<Variant>(assignmentKey);
+    if (!variant || !variants.includes(variant)) return { recorded: false };
+    if (await getValue<boolean>(`${assignmentKey}:converted`)) {
+      return { recorded: false };
+    }
+
+    const statsKey = `bandit:${experimentId}:stats`;
+    const stats = (await getValue<ExperimentStats>(statsKey)) ?? emptyStats();
+    stats[variant].conversions += 1;
+    await setValue(statsKey, stats);
+    await setValue(`${assignmentKey}:converted`, true);
+    return { recorded: true };
+  });
+
+const dashboardInput = z.object({ password: z.string().min(1).max(200) });
+
+export const getBanditDashboard = createServerFn({ method: "POST" })
+  .validator((input) => dashboardInput.parse(input))
+  .handler(async ({ data }) => {
+    const expectedPassword = process.env["BANDIT_ADMIN_PASSWORD"];
+    if (!expectedPassword || data.password !== expectedPassword) {
+      throw new Error("Invalid admin password");
+    }
+
+    const stats = (await getValue<ExperimentStats>(
+      `bandit:${experimentId}:stats`,
+    )) ?? emptyStats();
+    const totalImpressions = variants.reduce(
+      (total, variant) => total + stats[variant].impressions,
+      0,
+    );
+    return {
+      experimentId,
+      variants: variants.map((variant) => ({
+        name: variant,
+        ...stats[variant],
+        conversionRate:
+          stats[variant].impressions > 0
+            ? stats[variant].conversions / stats[variant].impressions
+            : 0,
+        trafficShare:
+          totalImpressions > 0 ? stats[variant].impressions / totalImpressions : 0,
+      })),
+      totalImpressions,
+    };
+  });
+
+export { experimentId };
