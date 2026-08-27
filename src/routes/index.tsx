@@ -21,6 +21,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Reviews } from "@/components/reviews";
 import { getBanditAssignment } from "@/lib/bandit.functions";
+import { recordBanditConversion } from "@/lib/bandit.functions";
 import { sendContactRequest } from "@/lib/contact.functions";
 import imgUnnamed11 from "@/assets/unnamed-11.jpeg";
 import imgUnnamed6 from "@/assets/unnamed-6.jpeg";
@@ -134,14 +135,33 @@ const serviceOptions = [
   "Other (describe if not listed)",
 ];
 
+type BanditVariant = "control" | "urgent" | "local" | "fast" | "quote";
+
+const ctaCopy: Record<BanditVariant, { call: string; request: string }> = {
+  control: { call: "Call", request: "Request service" },
+  urgent: { call: "Call for urgent help", request: "Get urgent help" },
+  local: {
+    call: "Call your local plumber",
+    request: "Talk to a local plumber",
+  },
+  fast: { call: "Call now", request: "Get a fast callback" },
+  quote: { call: "Call for a quote", request: "Request a free quote" },
+};
 
 function Index() {
   const [service, setService] = useState(serviceOptions[0]);
   const [sending, setSending] = useState(false);
-  const [banditVariant, setBanditVariant] = useState<"control" | "urgent">(
-    "control",
-  );
+  const [banditVariant, setBanditVariant] = useState<BanditVariant>("control");
   const [visitorId, setVisitorId] = useState("");
+
+  const trackCallClick = async (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!visitorId) return;
+    event.preventDefault();
+    await recordBanditConversion({
+      data: { visitorId, experimentId: "request-cta-copy" },
+    }).catch(() => undefined);
+    window.location.href = TEL;
+  };
 
   useEffect(() => {
     const storageKey = "papatoetoe-bandit-visitor";
@@ -210,8 +230,8 @@ function Index() {
           </a>
           <div className="flex items-center gap-2">
             <Button asChild variant="call" size="lg">
-              <a href={TEL}>
-                <Phone /> Call
+              <a href={TEL} onClick={trackCallClick}>
+                <Phone /> {ctaCopy[banditVariant].call}
               </a>
             </Button>
             <Button
@@ -220,9 +240,7 @@ function Index() {
               size="lg"
               className="hidden sm:inline-flex"
             >
-                  <a href="#request">
-                    {banditVariant === "urgent" ? "Get urgent help" : "Request service"}
-                  </a>
+              <a href="#request">{ctaCopy[banditVariant].request}</a>
             </Button>
           </div>
         </div>
@@ -245,14 +263,12 @@ function Index() {
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
               <Button asChild variant="call" size="xl">
-                <a href={TEL}>
-                  <Phone /> Call {PHONE}
+                <a href={TEL} onClick={trackCallClick}>
+                  <Phone /> {ctaCopy[banditVariant].call} {PHONE}
                 </a>
               </Button>
               <Button asChild variant="onDark" size="xl">
-                <a href="#request">
-                  {banditVariant === "urgent" ? "Get urgent help" : "Request online"}
-                </a>
+                <a href="#request">{ctaCopy[banditVariant].request}</a>
               </Button>
             </div>
             <dl className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -349,6 +365,7 @@ function Index() {
                   For emergencies, call instead:{" "}
                   <a
                     href={TEL}
+                    onClick={trackCallClick}
                     className="font-semibold text-primary underline underline-offset-4"
                   >
                     {PHONE}
@@ -395,7 +412,9 @@ function Index() {
           <h2 className="text-3xl font-bold uppercase sm:text-4xl">
             Recent work
           </h2>
-          <p className="mt-2 text-muted-foreground">Real jobs completed across Papatoetoe.</p>
+          <p className="mt-2 text-muted-foreground">
+            Real jobs completed across Papatoetoe.
+          </p>
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {gallery.map((img) => (
               <img
@@ -436,8 +455,8 @@ function Index() {
             Water where it shouldn't be? Call us now.
           </h2>
           <Button asChild variant="call" size="xl">
-            <a href={TEL}>
-              <Phone /> Call {PHONE}
+            <a href={TEL} onClick={trackCallClick}>
+              <Phone /> {ctaCopy[banditVariant].call} {PHONE}
             </a>
           </Button>
         </div>
@@ -454,7 +473,11 @@ function Index() {
               24/7 emergency plumbing.
             </p>
           </div>
-          <a href={TEL} className="text-xl font-bold text-accent">
+          <a
+            href={TEL}
+            onClick={trackCallClick}
+            className="text-xl font-bold text-accent"
+          >
             {PHONE}
           </a>
         </div>
@@ -463,8 +486,8 @@ function Index() {
       {/* Mobile sticky call bar */}
       <div className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-2 gap-2 border-t border-border bg-card p-3 sm:hidden">
         <Button asChild variant="call" size="lg">
-          <a href={TEL}>
-            <Phone /> Call now
+          <a href={TEL} onClick={trackCallClick}>
+            <Phone /> {ctaCopy[banditVariant].call}
           </a>
         </Button>
         <Button asChild variant="default" size="lg">

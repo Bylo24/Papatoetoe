@@ -3,12 +3,12 @@
 The site includes a request CTA experiment at `/admin`. Set these server-only variables in the deployment environment:
 
 ```bash
-BANDIT_ADMIN_PASSWORD=use-a-long-random-password
+BANDIT_ADMIN_PASSWORD=apples321
 UPSTASH_REDIS_REST_URL=https://...
 UPSTASH_REDIS_REST_TOKEN=...
 ```
 
-Without Redis, local development uses an in-memory fallback and metrics reset when the server restarts. Without `BANDIT_ADMIN_PASSWORD`, the dashboard cannot be opened.
+Without Redis, local development uses an in-memory fallback and metrics reset when the server restarts. The dashboard password defaults to `apples321` unless `BANDIT_ADMIN_PASSWORD` overrides it.
 
 # Papatoetoe Plumbing Hub
 
