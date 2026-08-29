@@ -20,7 +20,6 @@ import {
   PHONE_DISPLAY,
   PHONE_LINK,
   gallery,
-  reviewCount,
   serviceOptions,
   type ServiceName,
 } from "@/lib/site-content";
@@ -194,8 +193,8 @@ function Index() {
                 <div className="flex items-center gap-2 sm:pr-4">
                   <Star className="size-4 shrink-0 fill-current text-accent" aria-hidden="true" />
                   <span>
-                    <strong className="block">5.0 on Google</strong>
-                    <span className="text-primary-foreground/65">{reviewCount} reviews</span>
+                    <strong className="block">5 stars</strong>
+                    <span className="text-primary-foreground/65">Google rating</span>
                   </span>
                 </div>
                 <div className="flex items-center gap-2 border-primary-foreground/20 sm:border-l sm:px-4">

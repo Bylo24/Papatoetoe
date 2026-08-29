@@ -3,7 +3,7 @@ import { ChevronDown, ChevronUp, Star } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { TypographyH2, TypographyH3 } from "@/components/typography";
-import { reviewCount, reviews, type Review } from "@/lib/site-content";
+import { reviews, type Review } from "@/lib/site-content";
 
 function Stars({ className }: { className?: string }) {
   return (
@@ -84,7 +84,7 @@ export function Reviews() {
             </p>
             <Stars className="mt-2" />
             <p className="mt-1 text-sm font-semibold text-foreground">
-              on Google · {reviewCount} reviews
+              5 stars on Google
             </p>
           </div>
         </div>
