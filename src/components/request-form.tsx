@@ -22,7 +22,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { banditVariants, type BanditVariant } from "@/lib/bandit.constants";
+import { experimentId, type BanditVariant } from "@/lib/bandit.constants";
+import { recordBanditConversion } from "@/lib/bandit.functions";
 import {
   contactFormSchema,
   type ContactFormValues,
@@ -33,7 +34,6 @@ import {
   serviceOptions,
   type ServiceName,
 } from "@/lib/site-content";
-import { sendContactRequest } from "@/lib/contact.functions";
 import { cn } from "@/lib/utils";
 
 export type RequestStatus = "idle" | "sending" | "success" | "error";
@@ -54,15 +54,12 @@ const defaultValues: ContactFormValues = {
   details: "",
 };
 
+const formSubmitEndpoint =
+  "https://formsubmit.co/ajax/samuelhowell247@gmail.com";
+
 export const RequestForm = React.forwardRef<HTMLDivElement, RequestFormProps>(
   (
-    {
-      visitorId,
-      banditVariant,
-      selectedService,
-      onServiceChange,
-      className,
-    },
+    { visitorId, banditVariant, selectedService, onServiceChange, className },
     ref,
   ) => {
     const [status, setStatus] = React.useState<RequestStatus>("idle");
@@ -82,22 +79,46 @@ export const RequestForm = React.forwardRef<HTMLDivElement, RequestFormProps>(
     }, [form, selectedService]);
 
     const onSubmit = async (values: ContactFormValues) => {
-      if (!visitorId || !banditVariants.includes(banditVariant)) {
-        setStatus("error");
-        return;
-      }
-
       setStatus("sending");
       try {
-        const result = await sendContactRequest({
-          data: {
-            ...values,
-            visitorId,
-            variant: banditVariant,
+        const response = await fetch(formSubmitEndpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
           },
+          body: JSON.stringify({
+            name: values.name,
+            phone: values.phone,
+            suburb: values.suburb,
+            service: values.service,
+            details: values.details,
+            _subject: `New service request - ${values.service}`,
+            _template: "table",
+            _captcha: "false",
+          }),
         });
 
-        if (!result.success) throw new Error("Contact request was not accepted");
+        if (!response.ok) {
+          throw new Error(`FormSubmit responded with ${response.status}`);
+        }
+
+        const result = (await response.json()) as {
+          success?: boolean | string;
+          message?: string;
+        };
+
+        if (result.success === false || result.success === "false") {
+          throw new Error(result.message ?? "Contact request was not accepted");
+        }
+
+        if (visitorId) {
+          void recordBanditConversion({
+            data: { visitorId, experimentId },
+          }).catch((error) => {
+            console.error(error);
+          });
+        }
 
         window.dispatchEvent(
           new CustomEvent("lead-conversion", {
@@ -114,11 +135,7 @@ export const RequestForm = React.forwardRef<HTMLDivElement, RequestFormProps>(
     };
 
     return (
-      <div
-        ref={ref}
-        id="request"
-        className={cn("scroll-mt-28", className)}
-      >
+      <div ref={ref} id="request" className={cn("scroll-mt-28", className)}>
         <div className="request-docket overflow-hidden rounded-xl bg-card text-card-foreground shadow-lift">
           <div className="bg-ink px-5 py-5 text-ink-foreground sm:px-7 sm:py-6">
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-accent">
@@ -228,7 +245,10 @@ export const RequestForm = React.forwardRef<HTMLDivElement, RequestFormProps>(
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Suburb <span className="text-muted-foreground">(optional)</span>
+                        Suburb{" "}
+                        <span className="text-muted-foreground">
+                          (optional)
+                        </span>
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -248,7 +268,10 @@ export const RequestForm = React.forwardRef<HTMLDivElement, RequestFormProps>(
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Details <span className="text-muted-foreground">(optional)</span>
+                        Details{" "}
+                        <span className="text-muted-foreground">
+                          (optional)
+                        </span>
                       </FormLabel>
                       <FormControl>
                         <Textarea
@@ -280,7 +303,10 @@ export const RequestForm = React.forwardRef<HTMLDivElement, RequestFormProps>(
 
                 {status === "success" ? (
                   <Alert className="border-accent/40 bg-accent/10 text-foreground">
-                    <CheckCircle2 className="text-accent-foreground" aria-hidden="true" />
+                    <CheckCircle2
+                      className="text-accent-foreground"
+                      aria-hidden="true"
+                    />
                     <AlertDescription>
                       Request sent. We&apos;ll call you back shortly. For urgent
                       problems, call{" "}
@@ -315,7 +341,7 @@ export const RequestForm = React.forwardRef<HTMLDivElement, RequestFormProps>(
                   Your details are used only to respond to this service request.
                 </p>
                 <p className="text-center text-sm text-muted-foreground">
-                  For urgent problems, call instead: {" "}
+                  For urgent problems, call instead:{" "}
                   <a
                     href={PHONE_LINK}
                     className="font-bold text-primary underline underline-offset-4"
