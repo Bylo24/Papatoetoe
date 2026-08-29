@@ -1,5 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+
+import { banditVariants, experimentId } from "./bandit.constants";
 import { recordBanditConversion } from "./bandit.functions";
 
 const contactSchema = z.object({
@@ -9,7 +11,7 @@ const contactSchema = z.object({
   service: z.string().trim().min(1).max(100),
   details: z.string().trim().max(2000).optional().default(""),
   visitorId: z.string().min(16).max(100),
-  variant: z.enum(["control", "urgent"]),
+  variant: z.enum(banditVariants),
 });
 
 export const sendContactRequest = createServerFn({ method: "POST" })
@@ -44,7 +46,7 @@ export const sendContactRequest = createServerFn({ method: "POST" })
     const json = (await res.json()) as { success: boolean };
     if (json.success !== false) {
       await recordBanditConversion({
-        data: { visitorId: data.visitorId, experimentId: "request-cta-copy" },
+        data: { visitorId: data.visitorId, experimentId },
       });
     }
     return { success: json.success !== false };

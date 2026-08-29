@@ -1,109 +1,142 @@
-import { Star } from "lucide-react";
-import { useEffect } from "react";
+import * as React from "react";
+import { ChevronDown, ChevronUp, Star } from "lucide-react";
 
-type Review = {
-  name: string;
-  when: string;
-  text: string;
-  meta?: string;
-  reply?: string;
-};
+import { Button } from "@/components/ui/button";
+import { TypographyH2, TypographyH3 } from "@/components/typography";
+import { reviews, type Review } from "@/lib/site-content";
 
-const reviews: Review[] = [
-  {
-    name: "Noela",
-    when: "2 weeks ago",
-    text: "Highly recommend! The plumber was professional, reliable, and completed the job to a very high standard. Communication was excellent from start to finish, arrived on time, and left everything clean and tidy. The gas installation was completed safely and efficiently.",
-    reply: "Thanks for taking the time to leave us a review!",
-  },
-  {
-    name: "Mrs",
-    when: "1 week ago",
-    text: "Highly recommend the great communication, they were quick to find me a booking and arrived on time. It's rare to see workers clean up their mess properly these days but Papatoetoe Plumbing impressed me! Give them a shot.",
-    meta: "Great price · $200–400",
-    reply: "Thanks for the review!",
-  },
-  {
-    name: "Logan",
-    when: "1 week ago",
-    text: "A++ we had the team come out with short notice. Trouble with water supply from our tank as we're rural — turns out there was a leak in the plumbing from the tank to the house. The crew had it sorted in no time. Would definitely recommend 👌",
-    meta: "Great price",
-    reply: "Thanks for the review! I appreciate it",
-  },
-  {
-    name: "VIRAL",
-    when: "2 weeks ago",
-    text: "Great service. The plumber was incredibly professional, explained the problem clearly, and did an excellent job. I really appreciated how tidy they were — fantastic experience!",
-    meta: "Great price · Plumbing leak detection",
-    reply: "We appreciate your wonderful review. Thanks for choosing us!",
-  },
-  {
-    name: "Nikora",
-    when: "2 weeks ago",
-    text: "Had to call this guy in to fix someone else's mistakes. I should've just got him in the first place. Would highly recommend 10/10",
-    meta: "Great price · Plumbing pipe repair",
-    reply: "We truly appreciate your support. Thanks for the great review!",
-  },
-  {
-    name: "Tracey",
-    when: "3 weeks ago",
-    text: "Fantastic service from start to finish. The team was friendly, professional, and took the time to make sure everything was done to a high standard. Reliable, punctual, and genuinely cared about delivering a great result.",
-  },
-  {
-    name: "reshee",
-    when: "1 week ago",
-    text: "I had a great experience with Papatoetoe Plumbing & Gas. From the very first call these guys were quick, efficient and communicated really well. Quality of the work was excellent too. Top notch service!",
-    reply:
-      "Thanks so much for your kind review! We really appreciate your support.",
-  },
-  {
-    name: "Tali",
-    when: "1 week ago",
-    text: "Highly recommend this plumber 😁🤝 Friendly dude, gets the job done right, no shortcuts. Fast communication and reliable — thanks again, will definitely be using you again.",
-    reply: "Thanks for the review and feedback!",
-  },
-  {
-    name: "sejal",
-    when: "2 weeks ago",
-    text: "Very responsive and a good job done.",
-    meta: "Great price",
-    reply: "Thanks for the feedback!",
-  },
-];
-
-function Stars() {
+function Stars({ className }: { className?: string }) {
   return (
-    <div className="flex gap-0.5 text-accent">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <Star key={i} className="size-4 fill-current" />
+    <span
+      className={`inline-flex gap-1 text-accent ${className ?? ""}`}
+      aria-label="5 out of 5 stars"
+    >
+      {Array.from({ length: 5 }).map((_, index) => (
+        <Star
+          key={index}
+          className="size-4 fill-current"
+          aria-hidden="true"
+        />
       ))}
+    </span>
+  );
+}
+
+function ReviewMeta({ review }: { review: Review }) {
+  return (
+    <div className="mt-5 border-t border-border pt-4">
+      <p className="font-semibold text-foreground">{review.name}</p>
+      <p className="text-sm text-muted-foreground">
+        {review.location} · {review.when}
+      </p>
+      {review.meta ? (
+        <p className="mt-1 text-sm font-semibold text-primary">{review.meta}</p>
+      ) : null}
     </div>
   );
 }
 
-export function Reviews() {
+function ReviewQuote({
+  review,
+  featured = false,
+}: {
+  review: Review;
+  featured?: boolean;
+}) {
   return (
-    <section id="reviews" className="border-y border-border bg-card py-16 sm:py-20">
-      <div className="mx-auto max-w-6xl px-5">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
-              Google reviews
+    <article className={featured ? "review-ledger__featured" : "review-ledger__supporting"}>
+      <Stars />
+      <blockquote
+        className={
+          featured
+            ? "mt-4 text-2xl leading-tight text-foreground sm:text-3xl"
+            : "mt-4 text-lg leading-7 text-foreground"
+        }
+      >
+        “{review.text}”
+      </blockquote>
+      <ReviewMeta review={review} />
+    </article>
+  );
+}
+
+export function Reviews() {
+  const [showMore, setShowMore] = React.useState(false);
+  const featured = reviews[0];
+  const supporting = [reviews[1], reviews[3]];
+  const remaining = reviews.slice(3);
+
+  if (!featured) return null;
+
+  return (
+    <section id="reviews" className="scroll-mt-28 border-b border-border bg-secondary">
+      <div className="mx-auto max-w-6xl px-5 py-16 sm:py-20">
+        <div className="flex flex-col gap-7 border-b border-border pb-8 sm:flex-row sm:items-end sm:justify-between">
+          <div className="max-w-3xl">
+            <p className="eyebrow">Recent local customers</p>
+            <TypographyH2 className="section-title mt-3 text-4xl sm:text-5xl">
+              5-star service from local customers.
+            </TypographyH2>
+          </div>
+          <div className="border-l-2 border-accent pl-4 sm:min-w-48">
+            <p className="font-display text-4xl font-bold leading-none text-primary">
+              5.0
             </p>
-            <h2 className="mt-1 text-3xl font-bold uppercase sm:text-4xl">
-              What our customers say
-            </h2>
+            <Stars className="mt-2" />
+            <p className="mt-1 text-sm font-semibold text-foreground">
+              5 stars on Google
+            </p>
           </div>
         </div>
 
-        {/* SociableKit embed (static snippet requested) */}
-        <div
-          className="mt-10"
-          dangerouslySetInnerHTML={{
-            __html:
-              '<div class="sk-ww-google-reviews" data-embed-id="25705141"></div><script src="https://widgets.sociablekit.com/google-reviews/widget.js" defer></script>',
-          }}
-        />
+        <div className="review-ledger mt-8 grid gap-8 lg:grid-cols-[1.4fr_0.8fr] lg:gap-12">
+          <ReviewQuote review={featured} featured />
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-1">
+            {supporting.map((review) =>
+              review ? <ReviewQuote key={review.name} review={review} /> : null,
+            )}
+          </div>
+        </div>
+
+        <div className="mt-10 border-t border-border pt-5">
+          <Button
+            type="button"
+            variant="link"
+            className="h-auto px-0 py-0 text-primary"
+            aria-expanded={showMore}
+            aria-controls="additional-reviews"
+            onClick={() => setShowMore((current) => !current)}
+          >
+            {showMore ? "Hide additional reviews" : "See more customer reviews"}
+            {showMore ? <ChevronUp aria-hidden="true" /> : <ChevronDown aria-hidden="true" />}
+          </Button>
+          <span className="ml-4 text-sm text-muted-foreground">
+            Selected reviews are shown above; open the rest when you want more detail.
+          </span>
+        </div>
+
+        {showMore ? (
+          <div
+            id="additional-reviews"
+            className="mt-8 grid gap-x-8 gap-y-8 border-t border-border pt-8 sm:grid-cols-2 lg:grid-cols-3"
+          >
+            {remaining.map((review) => (
+              <article key={review.name} className="border-l-2 border-border pl-4">
+                <Stars />
+                <TypographyH3 className="mt-3 text-xl">
+                  {review.name}
+                </TypographyH3>
+                <blockquote className="mt-2 text-sm leading-6 text-foreground">
+                  “{review.text}”
+                </blockquote>
+                <p className="mt-3 text-xs text-muted-foreground">
+                  {review.location} · {review.when}
+                  {review.meta ? ` · ${review.meta}` : ""}
+                </p>
+              </article>
+            ))}
+          </div>
+        ) : null}
       </div>
     </section>
   );

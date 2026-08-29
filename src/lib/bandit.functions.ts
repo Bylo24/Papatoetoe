@@ -2,16 +2,18 @@ import { Redis } from "@upstash/redis";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-const experimentId = "request-cta-copy";
-const variants = ["control", "urgent", "local", "fast", "quote"] as const;
-type Variant = (typeof variants)[number];
+import {
+  banditVariants,
+  experimentId,
+  type BanditVariant,
+} from "./bandit.constants";
 
 type VariantStats = {
   impressions: number;
   conversions: number;
 };
 
-type ExperimentStats = Record<Variant, VariantStats>;
+type ExperimentStats = Record<BanditVariant, VariantStats>;
 
 const memoryStore = new Map<string, unknown>();
 
@@ -54,32 +56,35 @@ function normalizeStats(
   stats: Partial<ExperimentStats> | null,
 ): ExperimentStats {
   const defaults = emptyStats();
-  return variants.reduce((result, variant) => {
+  return banditVariants.reduce((result, variant) => {
     result[variant] = stats?.[variant] ?? defaults[variant];
     return result;
   }, defaults);
 }
 
-function chooseVariant(stats: ExperimentStats): Variant {
-  const totalImpressions = variants.reduce(
+function chooseVariant(stats: ExperimentStats): BanditVariant {
+  const totalImpressions = banditVariants.reduce(
     (total, variant) => total + stats[variant].impressions,
     0,
   );
-  const unexplored = variants.find(
+  const unexplored = banditVariants.find(
     (variant) => stats[variant].impressions === 0,
   );
   if (unexplored) return unexplored;
 
   const epsilon = Math.max(0.1, 1 / Math.sqrt(Math.max(totalImpressions, 1)));
   if (Math.random() < epsilon) {
-    return variants[Math.floor(Math.random() * variants.length)] ?? "control";
+    return (
+      banditVariants[Math.floor(Math.random() * banditVariants.length)] ??
+      "control"
+    );
   }
 
-  return variants.reduce((best, variant) => {
+  return banditVariants.reduce((best, variant) => {
     const bestRate = stats[best].conversions / stats[best].impressions;
     const variantRate = stats[variant].conversions / stats[variant].impressions;
     return variantRate > bestRate ? variant : best;
-  }, variants[0]);
+  }, banditVariants[0]);
 }
 
 const visitorInput = z.object({
@@ -90,8 +95,8 @@ export const getBanditAssignment = createServerFn({ method: "POST" })
   .validator((input) => visitorInput.parse(input))
   .handler(async ({ data }) => {
     const assignmentKey = `bandit:${experimentId}:visitor:${data.visitorId}`;
-    const existing = await getValue<Variant>(assignmentKey);
-    if (existing && variants.includes(existing)) {
+    const existing = await getValue<BanditVariant>(assignmentKey);
+    if (existing && banditVariants.includes(existing)) {
       return { experimentId, variant: existing };
     }
 
@@ -110,8 +115,8 @@ export const recordBanditConversion = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     const assignmentKey = `bandit:${experimentId}:visitor:${data.visitorId}`;
-    const variant = await getValue<Variant>(assignmentKey);
-    if (!variant || !variants.includes(variant)) return { recorded: false };
+    const variant = await getValue<BanditVariant>(assignmentKey);
+    if (!variant || !banditVariants.includes(variant)) return { recorded: false };
     if (await getValue<boolean>(`${assignmentKey}:converted`)) {
       return { recorded: false };
     }
@@ -138,13 +143,13 @@ export const getBanditDashboard = createServerFn({ method: "POST" })
     const normalizedStats = normalizeStats(
       await getValue<ExperimentStats>(`bandit:${experimentId}:stats`),
     );
-    const totalImpressions = variants.reduce(
+    const totalImpressions = banditVariants.reduce(
       (total, variant) => total + normalizedStats[variant].impressions,
       0,
     );
     return {
       experimentId,
-      variants: variants.map((variant) => ({
+      variants: banditVariants.map((variant) => ({
         name: variant,
         ...normalizedStats[variant],
         conversionRate:
@@ -161,4 +166,5 @@ export const getBanditDashboard = createServerFn({ method: "POST" })
     };
   });
 
-export { experimentId };
+export { banditVariants, experimentId };
+export type { BanditVariant };

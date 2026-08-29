@@ -1,57 +1,50 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import {
-  Phone,
-  Clock,
-  ShieldCheck,
-  Flame,
-  Droplets,
-  Wrench,
-  ShowerHead,
-  BadgeCheck,
-  MapPin,
-  Receipt,
-  Send,
-} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Clock, MapPin, Phone, ReceiptText, ShieldCheck, Star } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { AreaRegister } from "@/components/area-register";
+import { ClosingCta } from "@/components/closing-cta";
+import { ProcessRail } from "@/components/process-rail";
+import { RequestForm } from "@/components/request-form";
 import { Reviews } from "@/components/reviews";
-import { getBanditAssignment } from "@/lib/bandit.functions";
-import { recordBanditConversion } from "@/lib/bandit.functions";
-import { sendContactRequest } from "@/lib/contact.functions";
-import imgUnnamed11 from "@/assets/unnamed-11.jpeg";
-import imgUnnamed6 from "@/assets/unnamed-6.jpeg";
-
-const gallery = [
-  { src: imgUnnamed11, alt: "Recent work — job photo 11" },
-  { src: imgUnnamed6, alt: "Recent work — job photo 6" },
-];
-
-const PHONE = "64 9 8844104";
-const TEL = "tel:+6498844104";
+import { ServiceIndex } from "@/components/service-index";
+import { TypographyH1, TypographyP } from "@/components/typography";
+import { WorkEvidence } from "@/components/work-evidence";
+import { Button } from "@/components/ui/button";
+import { experimentId, type BanditVariant } from "@/lib/bandit.constants";
+import {
+  getBanditAssignment,
+  recordBanditConversion,
+} from "@/lib/bandit.functions";
+import {
+  PHONE_DISPLAY,
+  PHONE_LINK,
+  gallery,
+  serviceOptions,
+  type ServiceName,
+} from "@/lib/site-content";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Papatoetoe Plumbing & Gas | 24/7 Emergency Plumber Auckland" },
+      {
+        title: "Papatoetoe Plumber | Plumbing, Hot Water & Gas",
+      },
       {
         name: "description",
         content:
-          "24/7 emergency plumbing and gas fitting in Papatoetoe and South Auckland. Qualified, insured, local. Call +64 9 8844104 or request service online.",
+          "Papatoetoe plumbing, hot water, gas and bathroom work across South Auckland. Call for 24/7 emergency help or request a callback from a qualified local plumber.",
       },
       {
         property: "og:title",
-        content: "Papatoetoe Plumbing & Gas | 24/7 Emergency Plumber",
+        content: "Papatoetoe Plumbing & Gas | Plumbing, Hot Water & Gas",
       },
       {
         property: "og:description",
         content:
-          "Urgent leaks, blocked drains, hot water and gas fitting across Papatoetoe. Upfront pricing, 5.0 Google rating.",
+          "Local plumbing, hot water, gas and bathroom work across Papatoetoe and South Auckland, with 24/7 emergency help when you need it.",
       },
+      { property: "og:image", content: gallery[0].src },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -59,109 +52,13 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const jobs = [
-  {
-    icon: Clock,
-    title: "Emergency plumbing",
-    text: "Burst pipes and urgent leaks, day or night.",
-  },
-  {
-    icon: Droplets,
-    title: "Leak repairs",
-    text: "Fast leak detection and permanent fixes.",
-  },
-  {
-    icon: Wrench,
-    title: "Blocked drains",
-    text: "Cleared with jetting and camera inspection.",
-  },
-  {
-    icon: Flame,
-    title: "Hot water",
-    text: "Cylinders, gas and continuous flow systems.",
-  },
-  {
-    icon: BadgeCheck,
-    title: "Gas fitting",
-    text: "Certified gas installs, servicing and checks.",
-  },
-  {
-    icon: ShowerHead,
-    title: "Bathrooms & fixtures",
-    text: "Taps, toilets, showers and renovations.",
-  },
-];
-
-const suburbs = [
-  "Albany",
-  "Bayview",
-  "Beach Haven",
-  "Belmont",
-  "Birkdale",
-  "Birkenhead",
-  "Browns Bay",
-  "Campbells Bay",
-  "Castor Bay",
-  "Devonport",
-  "Forrest Hill",
-  "Glenfield",
-  "Greenhithe",
-  "Hauraki",
-  "Hillcrest",
-  "Long Bay",
-  "Mairangi Bay",
-  "Milford",
-  "Northcote",
-  "Northcross",
-  "Pinehill",
-  "Rothesay Bay",
-  "Rosedale",
-  "Sunnynook",
-  "Takapuna",
-  "Torbay",
-  "Totara Vale",
-  "Unsworth Heights",
-  "Wairau Valley",
-  "Windsor Park",
-];
-
-const serviceOptions = [
-  "Emergency plumbing",
-  "Leak repairs",
-  "Blocked drains",
-  "Hot water",
-  "Gas fitting",
-  "Bathrooms & fixtures",
-  "Other (describe if not listed)",
-];
-
-type BanditVariant = "control" | "urgent" | "local" | "fast" | "quote";
-
-const ctaCopy: Record<BanditVariant, { call: string; request: string }> = {
-  control: { call: "Call", request: "Request service" },
-  urgent: { call: "Call for urgent help", request: "Get urgent help" },
-  local: {
-    call: "Call your local plumber",
-    request: "Talk to a local plumber",
-  },
-  fast: { call: "Call now", request: "Get a fast callback" },
-  quote: { call: "Call for a quote", request: "Request a free quote" },
-};
-
 function Index() {
-  const [service, setService] = useState(serviceOptions[0]);
-  const [sending, setSending] = useState(false);
+  const [selectedService, setSelectedService] = useState<ServiceName>(
+    serviceOptions[0],
+  );
   const [banditVariant, setBanditVariant] = useState<BanditVariant>("control");
   const [visitorId, setVisitorId] = useState("");
-
-  const trackCallClick = async (event: React.MouseEvent<HTMLAnchorElement>) => {
-    if (!visitorId) return;
-    event.preventDefault();
-    await recordBanditConversion({
-      data: { visitorId, experimentId: "request-cta-copy" },
-    }).catch(() => undefined);
-    window.location.href = TEL;
-  };
+  const requestRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const storageKey = "papatoetoe-bandit-visitor";
@@ -175,326 +72,208 @@ function Index() {
       .catch(() => undefined);
   }, []);
 
-  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const fd = new FormData(form);
-    setSending(true);
-    try {
-      if (!visitorId) throw new Error("Visitor assignment is not ready");
-      await sendContactRequest({
-        data: {
-          name: String(fd.get("name") ?? ""),
-          phone: String(fd.get("phone") ?? ""),
-          suburb: String(fd.get("suburb") ?? ""),
-          service: String(fd.get("service") ?? ""),
-          details: String(fd.get("details") ?? ""),
-          visitorId,
+  useEffect(() => {
+    if (!visitorId) return;
+    window.dispatchEvent(
+      new CustomEvent("conversion-analytics-ready", {
+        detail: {
+          experimentId,
           variant: banditVariant,
+          visitorId,
         },
-      });
+      }),
+    );
+  }, [banditVariant, visitorId]);
 
-      toast.success("Request sent — we'll call you back shortly.", {
-        description: `For anything urgent, call ${PHONE}.`,
-      });
-      form.reset();
-      setService(serviceOptions[0]);
-    } catch (err) {
-      toast.error("Sorry, that didn't go through.", {
-        description: `Please call ${PHONE} instead.`,
-      });
-      console.error(err);
-    } finally {
-      setSending(false);
+  const trackCallClick = () => {
+    window.dispatchEvent(
+      new CustomEvent("lead-conversion", { detail: { type: "phone_call" } }),
+    );
+    if (visitorId) {
+      void recordBanditConversion({
+        data: { visitorId, experimentId },
+      }).catch(() => undefined);
     }
   };
 
+  const selectService = (service: ServiceName) => {
+    setSelectedService(service);
+    requestRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    window.setTimeout(() => {
+      document.getElementById("request-form-heading")?.focus();
+    }, 350);
+  };
+
   return (
-    <div className="min-h-screen">
-      {/* Top bar */}
+    <div id="top" className="min-h-screen bg-background text-foreground">
       <div className="bg-ink text-ink-foreground">
-        <div className="mx-auto flex max-w-6xl items-center justify-center gap-2 px-5 py-2 text-center text-xs font-semibold uppercase tracking-widest sm:text-sm">
-          <Clock className="size-4 text-accent" />
-          24/7 emergency plumbing in Papatoetoe · {PHONE}
+        <div className="mx-auto flex min-h-9 max-w-6xl items-center justify-center gap-2 px-5 py-2 text-center text-xs font-semibold uppercase tracking-wide sm:text-sm">
+          <Clock className="size-4 shrink-0 text-accent" aria-hidden="true" />
+          <span>
+            Papatoetoe plumbing, hot water & gas · 24/7 emergency help · {PHONE_DISPLAY}
+          </span>
         </div>
       </div>
 
-      {/* Header */}
       <header className="sticky top-0 z-40 border-b border-border bg-card/95 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3">
+        <div className="mx-auto flex min-h-[4.5rem] max-w-6xl items-center justify-between gap-4 px-5">
           <a
             href="#top"
-            className="font-display text-lg font-bold uppercase leading-tight sm:text-xl"
+            aria-label="Papatoetoe Plumbing and Gas home"
+            className="font-display text-lg font-bold uppercase leading-none sm:text-xl"
           >
-            Papatoetoe<span className="text-accent"> Plumbing & Gas</span>
+            Papatoetoe <span className="text-accent-foreground">Plumbing & Gas</span>
           </a>
+          <nav
+            aria-label="Primary navigation"
+            className="hidden items-center gap-6 text-sm font-semibold uppercase text-muted-foreground lg:flex"
+          >
+            <a href="#services" className="nav-link">
+              Services
+            </a>
+            <a href="#reviews" className="nav-link">
+              Reviews
+            </a>
+            <a href="#work" className="nav-link">
+              Work
+            </a>
+            <a href="#areas" className="nav-link">
+              Areas
+            </a>
+          </nav>
           <div className="flex items-center gap-2">
             <Button asChild variant="call" size="lg">
-              <a href={TEL} onClick={trackCallClick}>
-                <Phone /> {ctaCopy[banditVariant].call}
+              <a href={PHONE_LINK} onClick={trackCallClick}>
+                <Phone aria-hidden="true" /> Call now
               </a>
             </Button>
-            <Button
-              asChild
-              variant="default"
-              size="lg"
-              className="hidden sm:inline-flex"
-            >
-              <a href="#request">{ctaCopy[banditVariant].request}</a>
+            <Button asChild variant="default" size="lg" className="hidden sm:inline-flex">
+              <a href="#request">Request service</a>
             </Button>
           </div>
         </div>
       </header>
 
-      {/* Hero */}
-      <section id="top" className="hero-surface text-primary-foreground">
-        <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 sm:py-20 lg:grid-cols-[1.05fr_0.95fr]">
-          <div>
-            <p className="inline-flex items-center gap-2 rounded-full bg-primary-foreground/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest">
-              <ShieldCheck className="size-4 text-accent" /> Qualified, insured,
-              local
-            </p>
-            <h1 className="mt-5 text-4xl font-bold uppercase leading-[0.95] sm:text-6xl">
-              Need a plumber in Papatoetoe?
-            </h1>
-            <p className="mt-5 max-w-xl text-lg text-primary-foreground/80">
-              Call now for urgent help, or send a quick request and we will get
-              back to you.
-            </p>
-            <div className="mt-7 flex flex-wrap gap-3">
-              <Button asChild variant="call" size="xl">
-                <a href={TEL} onClick={trackCallClick}>
-                  <Phone /> {ctaCopy[banditVariant].call} {PHONE}
-                </a>
-              </Button>
-              <Button asChild variant="onDark" size="xl">
-                <a href="#request">{ctaCopy[banditVariant].request}</a>
-              </Button>
-            </div>
-            <dl className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-3">
-              {[
-                { icon: Clock, label: "24/7 emergencies" },
-                { icon: Receipt, label: "Upfront pricing" },
-                { icon: Flame, label: "Plumbing & gas" },
-              ].map((item) => (
-                <div
-                  key={item.label}
-                  className="flex items-center gap-3 rounded-lg border border-primary-foreground/15 bg-primary-foreground/5 px-4 py-3"
-                >
-                  <item.icon className="size-5 text-accent" />
-                  <dt className="text-sm font-semibold uppercase tracking-wide">
-                    {item.label}
-                  </dt>
-                </div>
-              ))}
-            </dl>
-            {/* Static rating removed: use SociableKit widget below */}
-          </div>
+      <main>
+        <section className="hero-surface text-primary-foreground">
+          <div className="mx-auto grid max-w-6xl gap-10 px-5 py-12 sm:py-16 lg:min-h-[650px] lg:grid-cols-[1.06fr_0.94fr] lg:items-center lg:gap-16">
+            <div className="hero-copy">
+              <p className="eyebrow text-primary-foreground/75">
+                <MapPin className="size-4 text-accent" aria-hidden="true" />
+                Papatoetoe & South Auckland plumbing
+              </p>
+              <TypographyH1 className="mt-5 max-w-3xl text-5xl sm:text-7xl">
+                Plumbing, hot water, gas & urgent help.
+              </TypographyH1>
+              <TypographyP className="mt-5 max-w-2xl text-lg text-primary-foreground/80 sm:text-xl">
+                Everyday plumbing, hot water, gas and bathroom work across
+                Papatoetoe and South Auckland. If something cannot wait, call for
+                24/7 emergency help.
+              </TypographyP>
 
-          {/* Quick request form */}
-          <div id="request" className="scroll-mt-24">
-            <form
-              onSubmit={onSubmit}
-              className="rounded-2xl bg-card p-6 text-card-foreground shadow-lift sm:p-7"
-            >
-              <h2 className="text-2xl font-bold uppercase">Quick request</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Leave your details and we will call you back.
+              <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+                <Button asChild variant="call" size="xl">
+                  <a href={PHONE_LINK} onClick={trackCallClick}>
+                    <Phone aria-hidden="true" /> Call now · {PHONE_DISPLAY}
+                  </a>
+                </Button>
+                <Button asChild variant="onDark" size="xl">
+                  <a href="#request">Request service</a>
+                </Button>
+              </div>
+              <p className="mt-4 flex max-w-xl items-start gap-2 text-sm leading-6 text-primary-foreground/75">
+                <ShieldCheck className="mt-0.5 size-4 shrink-0 text-accent" aria-hidden="true" />
+                <span>
+                  For burst pipes, overflowing toilets or urgent water shutoffs,
+                  call rather than waiting for a callback.
+                </span>
               </p>
 
-              <div className="mt-5 grid gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="name">Name</Label>
-                  <Input id="name" name="name" required autoComplete="name" />
+              <div className="mt-8 grid gap-3 border-t border-primary-foreground/20 pt-5 text-sm sm:grid-cols-3 sm:gap-0">
+                <div className="flex items-center gap-2 sm:pr-4">
+                  <Star className="size-4 shrink-0 fill-current text-accent" aria-hidden="true" />
+                  <span>
+                    <strong className="block">5 stars</strong>
+                    <span className="text-primary-foreground/65">Google rating</span>
+                  </span>
                 </div>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="grid gap-2">
-                    <Label htmlFor="phone">Phone</Label>
-                    <Input
-                      id="phone"
-                      name="phone"
-                      type="tel"
-                      required
-                      autoComplete="tel"
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="suburb">Suburb</Label>
-                    <Input
-                      id="suburb"
-                      name="suburb"
-                      placeholder="e.g. Takapuna"
-                    />
-                  </div>
+                <div className="flex items-center gap-2 border-primary-foreground/20 sm:border-l sm:px-4">
+                  <ShieldCheck className="size-4 shrink-0 text-accent" aria-hidden="true" />
+                  <span>Qualified & insured</span>
                 </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="service">What do you need?</Label>
-                  <select
-                    id="service"
-                    name="service"
-                    value={service}
-                    onChange={(e) => setService(e.target.value)}
-                    className="h-10 rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                  >
-                    {serviceOptions.map((o) => (
-                      <option key={o} value={o}>
-                        {o}
-                      </option>
-                    ))}
-                  </select>
+                <div className="flex items-center gap-2 border-primary-foreground/20 sm:border-l sm:pl-4">
+                  <ReceiptText className="size-4 shrink-0 text-accent" aria-hidden="true" />
+                  <span>Clear pricing before work</span>
                 </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="details">Details</Label>
-                  <Textarea
-                    id="details"
-                    name="details"
-                    rows={3}
-                    placeholder="e.g. Leak in outdoor tap"
-                  />
-                </div>
-                <Button
-                  type="submit"
-                  variant="call"
-                  size="xl"
-                  className="w-full"
-                  disabled={sending}
-                >
-                  <Send /> {sending ? "Sending…" : "Send request"}
-                </Button>
-                <p className="text-center text-sm text-muted-foreground">
-                  For emergencies, call instead:{" "}
-                  <a
-                    href={TEL}
-                    onClick={trackCallClick}
-                    className="font-semibold text-primary underline underline-offset-4"
-                  >
-                    {PHONE}
-                  </a>
-                </p>
               </div>
-            </form>
+            </div>
+
+            <RequestForm
+              ref={requestRef}
+              visitorId={visitorId}
+              banditVariant={banditVariant}
+              selectedService={selectedService}
+              onServiceChange={setSelectedService}
+            />
           </div>
-        </div>
-      </section>
+        </section>
 
-      <Reviews />
+        <ProcessRail />
+        <Reviews />
 
-      {/* Common jobs */}
-      <section className="py-16 sm:py-20">
-        <div className="mx-auto max-w-6xl px-5">
-          <h2 className="text-3xl font-bold uppercase sm:text-4xl">
-            Common jobs
-          </h2>
-          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {jobs.map((job) => (
-              <div
-                key={job.title}
-                className="rounded-xl border border-border bg-card p-6 shadow-card transition-shadow hover:shadow-lift"
-              >
-                <span className="flex size-11 items-center justify-center rounded-lg bg-accent text-accent-foreground">
-                  <job.icon className="size-5" />
-                </span>
-                <h3 className="mt-4 text-xl font-bold uppercase">
-                  {job.title}
-                </h3>
-                <p className="mt-1 text-sm text-muted-foreground">{job.text}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Recent work removed */}
-
-      {/* Recent work */}
-      <section className="border-y border-border bg-secondary py-16 sm:py-20">
-        <div className="mx-auto max-w-6xl px-5">
-          <h2 className="text-3xl font-bold uppercase sm:text-4xl">
-            Recent work
-          </h2>
-          <p className="mt-2 text-muted-foreground">
-            Real jobs completed across Papatoetoe.
-          </p>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {gallery.map((img) => (
-              <img
-                key={img.src}
-                src={img.src}
-                alt={img.alt}
-                loading="lazy"
-                className="h-64 w-full rounded-xl object-cover shadow-card"
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Service areas */}
-      <section className="py-16 sm:py-20">
-        <div className="mx-auto max-w-6xl px-5">
-          <h2 className="flex items-center gap-3 text-3xl font-bold uppercase sm:text-4xl">
-            <MapPin className="size-7 text-accent" /> Service areas
-          </h2>
-          <ul className="mt-7 flex flex-wrap gap-2">
-            {suburbs.map((s) => (
-              <li
-                key={s}
-                className="rounded-full border border-border bg-card px-4 py-1.5 text-sm font-medium"
-              >
-                {s}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      {/* Final CTA */}
-      <section className="hero-surface py-14 text-primary-foreground">
-        <div className="mx-auto flex max-w-6xl flex-col items-center gap-5 px-5 text-center">
-          <h2 className="text-3xl font-bold uppercase sm:text-4xl">
-            Water where it shouldn't be? Call us now.
-          </h2>
-          <Button asChild variant="call" size="xl">
-            <a href={TEL} onClick={trackCallClick}>
-              <Phone /> {ctaCopy[banditVariant].call} {PHONE}
-            </a>
-          </Button>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-ink py-10 text-ink-foreground">
-        <div className="mx-auto flex max-w-6xl flex-col gap-2 px-5 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
-          <div>
-            <p className="font-display text-lg font-bold uppercase">
-              Papatoetoe Plumbing & Gas
+        <section className="border-y border-border bg-ink text-ink-foreground">
+          <div className="mx-auto flex max-w-6xl flex-col gap-4 px-5 py-5 sm:flex-row sm:items-center sm:justify-between">
+            <p className="flex items-center gap-3 text-base font-semibold sm:text-lg">
+              <Phone className="size-5 text-accent" aria-hidden="true" />
+              For burst pipes and urgent water problems, call first.
             </p>
-            <p className="text-sm text-ink-foreground/70">
-              24/7 emergency plumbing.
+            <Button asChild variant="call" size="lg">
+              <a href={PHONE_LINK} onClick={trackCallClick}>
+                Call {PHONE_DISPLAY}
+              </a>
+            </Button>
+          </div>
+        </section>
+
+        <ServiceIndex
+          selectedService={selectedService}
+          onSelectService={selectService}
+        />
+        <WorkEvidence />
+        <AreaRegister />
+        <ClosingCta onCallClick={trackCallClick} />
+      </main>
+
+      <footer className="bg-ink text-ink-foreground">
+        <div className="mx-auto flex max-w-6xl flex-col gap-3 px-5 py-8 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="font-display text-xl font-bold uppercase">
+              Papatoetoe <span className="text-accent">Plumbing & Gas</span>
+            </p>
+            <p className="mt-1 text-sm text-ink-foreground/65">
+              Plumbing, hot water and gas across Papatoetoe and South Auckland.
             </p>
           </div>
           <a
-            href={TEL}
+            href={PHONE_LINK}
             onClick={trackCallClick}
-            className="text-xl font-bold text-accent"
+            className="font-display text-2xl font-bold text-accent"
           >
-            {PHONE}
+            {PHONE_DISPLAY}
           </a>
         </div>
       </footer>
 
-      {/* Mobile sticky call bar */}
-      <div className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-2 gap-2 border-t border-border bg-card p-3 sm:hidden">
+      <div className="mobile-conversion-dock fixed inset-x-0 bottom-0 z-50 grid grid-cols-[1.12fr_0.88fr] gap-2 border-t border-border bg-card p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:hidden">
         <Button asChild variant="call" size="lg">
-          <a href={TEL} onClick={trackCallClick}>
-            <Phone /> {ctaCopy[banditVariant].call}
+          <a href={PHONE_LINK} onClick={trackCallClick}>
+            <Phone aria-hidden="true" /> Call now
           </a>
         </Button>
         <Button asChild variant="default" size="lg">
-          <a href="#request">Request</a>
+          <a href="#request">Request service</a>
         </Button>
       </div>
-      <div className="h-16 sm:hidden" />
     </div>
   );
 }
