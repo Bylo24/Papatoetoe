@@ -1,7 +1,11 @@
 import { ArrowRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { TypographyH2, TypographyH3, TypographyP } from "@/components/typography";
+import {
+  TypographyH2,
+  TypographyH3,
+  TypographyP,
+} from "@/components/typography";
 import { services, type ServiceName } from "@/lib/site-content";
 
 export function ServiceIndex({
@@ -39,14 +43,17 @@ export function ServiceIndex({
                 aria-pressed={isSelected}
                 aria-label={`Select ${service.name} for your request`}
                 onClick={() => onSelectService(service.name)}
-                className={`service-index-row group h-auto min-h-28 w-full justify-start whitespace-normal rounded-none border-b border-border px-0 py-5 text-left hover:bg-secondary/60 focus-visible:bg-secondary/60 ${
-                  isSelected ? "border-l-4 border-accent bg-secondary/70 pl-4" : ""
+                className={`service-index-row group h-auto min-h-28 w-full justify-start gap-4 whitespace-normal rounded-none border-b border-l-4 border-border border-l-transparent px-4 py-5 text-left hover:bg-secondary/60 focus-visible:bg-secondary/60 sm:px-5 ${
+                  isSelected ? "border-l-accent bg-secondary/70" : ""
                 }`}
               >
                 <span className="w-8 shrink-0 font-display text-xl font-bold text-accent">
                   {String(index + 1).padStart(2, "0")}
                 </span>
-                <Icon className="size-5 shrink-0 text-primary" aria-hidden="true" />
+                <Icon
+                  className="size-5 shrink-0 text-primary"
+                  aria-hidden="true"
+                />
                 <span className="min-w-0 flex-1">
                   <TypographyH3 className="text-2xl">
                     {service.name}
@@ -56,7 +63,7 @@ export function ServiceIndex({
                   </span>
                 </span>
                 <ArrowRight
-                  className="size-5 shrink-0 text-accent opacity-40 transition-transform group-hover:translate-x-1 group-hover:opacity-100 group-focus-visible:translate-x-1 group-focus-visible:opacity-100"
+                  className="mr-0.5 size-5 shrink-0 text-accent opacity-40 transition-transform group-hover:translate-x-1 group-hover:opacity-100 group-focus-visible:translate-x-1 group-focus-visible:opacity-100 sm:mr-1"
                   aria-hidden="true"
                 />
               </Button>
@@ -79,7 +86,8 @@ export function ServiceIndex({
                 onSelectService("Other (describe if not listed)");
               }}
             >
-              Choose &quot;Other (describe if not listed)&quot; in the request form.
+              Choose &quot;Other (describe if not listed)&quot; in the request
+              form.
             </a>
           </Button>
         </p>

@@ -302,9 +302,9 @@ export const RequestForm = React.forwardRef<HTMLDivElement, RequestFormProps>(
                 </Button>
 
                 {status === "success" ? (
-                  <Alert className="border-accent/40 bg-accent/10 text-foreground">
+                  <Alert className="border-emerald-600/35 bg-emerald-50 text-emerald-950">
                     <CheckCircle2
-                      className="text-accent-foreground"
+                      className="text-emerald-700"
                       aria-hidden="true"
                     />
                     <AlertDescription>
@@ -312,7 +312,7 @@ export const RequestForm = React.forwardRef<HTMLDivElement, RequestFormProps>(
                       problems, call{" "}
                       <a
                         href={PHONE_LINK}
-                        className="font-bold text-primary underline underline-offset-4"
+                        className="font-bold text-emerald-800 underline underline-offset-4"
                       >
                         {PHONE_DISPLAY}
                       </a>
