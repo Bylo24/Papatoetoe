@@ -4,6 +4,7 @@ dist/
 .output/
 .vite/
 .vercel/
+.wrangler/
 
 .env
 .env.*

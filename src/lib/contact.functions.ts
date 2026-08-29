@@ -14,36 +14,37 @@ const contactSchema = z.object({
   variant: z.enum(banditVariants),
 });
 
+const formSubmitRecipient = "samuelhowell247@gmail.com";
+const formSubmitEndpoint = `https://formsubmit.co/ajax/${formSubmitRecipient}`;
+
 export const sendContactRequest = createServerFn({ method: "POST" })
   .validator((input) => contactSchema.parse(input))
   .handler(async ({ data }) => {
-    // Recipient kept server-side so it's never exposed to the client.
-    const to = "samuelhowell247@gmail.com";
-    const res = await fetch(
-      `https://formsubmit.co/ajax/${encodeURIComponent(to)}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({
-          name: data.name,
-          phone: data.phone,
-          suburb: data.suburb,
-          service: data.service,
-          details: data.details,
-          _subject: `New service request — ${data.service}`,
-          _template: "table",
-        }),
+    const body = new URLSearchParams({
+      name: data.name,
+      phone: data.phone,
+      suburb: data.suburb,
+      service: data.service,
+      details: data.details,
+      _subject: `New service request - ${data.service}`,
+      _template: "table",
+      _captcha: "false",
+    });
+
+    const res = await fetch(formSubmitEndpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Accept: "application/json",
       },
-    );
+      body,
+    });
 
     if (!res.ok) {
       throw new Error(`FormSubmit responded with ${res.status}`);
     }
 
-    const json = (await res.json()) as { success: boolean };
+    const json = (await res.json()) as { success?: boolean };
     if (json.success !== false) {
       await recordBanditConversion({
         data: { visitorId: data.visitorId, experimentId },
